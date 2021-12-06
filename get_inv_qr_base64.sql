@@ -34,8 +34,23 @@ l_qr_hex varchar2(32000);
 l_qr_hex_raw  raw(500);
 l_qr_base64 varchar2(500);
 
+l_nls varchar2(100);
+--Check character set
+cursor nls
+is
+select
+value from v$nls_parameters
+WHERE parameter IN ( 'NLS_CHARACTERSET');
 begin
+open nls;
+fetch nls into l_nls;
+close nls;
 
+--Check if characterset is not UTF8 then convert it to UTF8 because of arabic so you can but any tag will hold arbic her
+if l_nls != 'AL32UTF8' then
+l_tag1 := CONVERT(l_tag1 , 'AL32UTF8',l_nls) ;
+l_tag3 := CONVERT(l_tag3, 'AL32UTF8',l_nls) ;
+end if;
 --Get tags length bu using lengthb because of arabic characters is stored in two bytes not one as english characters
 l_tag1_len := lengthb(l_tag1);
 l_tag2_len := lengthb(l_tag2);
